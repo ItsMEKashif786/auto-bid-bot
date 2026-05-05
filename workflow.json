@@ -1,0 +1,81 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hour",
+              "value": "9,11,13,15,17"
+            },
+            {
+              "field": "minute",
+              "value": "0"
+            },
+            {
+              "field": "second",
+              "value": "0"
+            }
+          ]
+        }
+      },
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "python3 auto-bid-bot/main.py",
+        "options": {},
+        "workingDirectory": "/home/ubuntu"
+      },
+      "name": "Execute Main Script",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "",
+        "sheetName": "Sheet1",
+        "values": "={{$json.stdout}}",
+        "authentication": "oAuth2",
+        "oauthToken": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "name": "Google Sheets Backup (Optional)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Cron Trigger": [
+      {
+        "node": "Execute Main Script",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "Execute Main Script": [
+      {
+        "node": "Google Sheets Backup (Optional)",
+        "type": "main",
+        "index": 0
+      }
+    ]
+  },
+  "name": "Auto Bidding Bot Workflow",
+  "id": "auto-bidding-bot-workflow",
+  "active": false,
+  "settings": {},
+  "staticData": null,
+  "meta": {
+    "instanceId": ""
+  },
+  "pinData": {}
+}
