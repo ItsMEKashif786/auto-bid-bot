@@ -1,0 +1,82 @@
+{
+  "name": "Auto Bidding Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "cronExpression", "expression": "0 9-18/2 * * 1-5" }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every 2h business hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/auto-bid-bot && python main.py --platform linkedin"
+      },
+      "id": "run-linkedin",
+      "name": "Run LinkedIn bot",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [520, 220]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/auto-bid-bot && python main.py --platform twitter"
+      },
+      "id": "run-twitter",
+      "name": "Run X bot",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [520, 380]
+    },
+    {
+      "parameters": {
+        "fileName": "/opt/auto-bid-bot/logs/n8n_run.log",
+        "options": { "append": true },
+        "dataPropertyName": "stdout"
+      },
+      "id": "save-logs",
+      "name": "Append logs",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [820, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "REPLACE_WITH_SHEET_ID",
+        "range": "Logs!A:D",
+        "options": {}
+      },
+      "id": "sheets-backup",
+      "name": "Google Sheets backup (optional)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1100, 300],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Every 2h business hours": {
+      "main": [[
+        { "node": "Run LinkedIn bot", "type": "main", "index": 0 },
+        { "node": "Run X bot", "type": "main", "index": 0 }
+      ]]
+    },
+    "Run LinkedIn bot": {
+      "main": [[{ "node": "Append logs", "type": "main", "index": 0 }]]
+    },
+    "Run X bot": {
+      "main": [[{ "node": "Append logs", "type": "main", "index": 0 }]]
+    },
+    "Append logs": {
+      "main": [[{ "node": "Google Sheets backup (optional)", "type": "main", "index": 0 }]]
+    }
+  }
+}
