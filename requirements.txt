@@ -1,0 +1,5 @@
+playwright
+sqlite3
+groq
+openrouter
+python-dotenv
